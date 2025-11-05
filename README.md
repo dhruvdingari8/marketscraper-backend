@@ -40,11 +40,47 @@ The project consists of:
 ### Diagram
 
 ```mermaid
-graph TD;
-  A-->B;
-  A-->C;
-  B-->D;
-  C-->D;
+flowchart TB
+    subgraph Backend["Backend API (FastAPI)"]
+        Core["Core: config, database, security, logging"]
+        API["API: routes/controllers (alerts, listings, users, auth)"]
+        Services["Services: business logic"]
+        Models["Models: database ORM"]
+        Schemas["Schemas: Pydantic models"]
+        Scrapers["Scrapers: marketplace scrapers"]
+        Utils["Utils: shared helpers"]
+
+        API --> Services
+        Services --> Models
+        Services --> Scrapers
+        Services --> Utils
+        API --> Schemas
+        Services --> Schemas
+        Core --> Models
+    end
+
+    subgraph DiscordBot["Discord Bot"]
+        BotAPI["Bot communicates with Backend API via HTTP"]
+    end
+
+    subgraph Database["PostgreSQL Database"]
+        DB["Database: stores alerts, listings, users, etc."]
+    end
+
+    subgraph Tests["Tests"]
+        TestSuite["Unit & Integration Tests"]
+    end
+
+    subgraph Scripts["Scripts"]
+        ScriptsDev["Dev scripts: DB init, seeding, migrations"]
+    end
+
+    DiscordBot -->|REST API| API
+    Services --> DB
+    Models --> DB
+    TestSuite --> API
+    TestSuite --> Services
+    ScriptsDev --> DB
 ```
 
 - **Discord Bot** communicates with the backend via REST API.
